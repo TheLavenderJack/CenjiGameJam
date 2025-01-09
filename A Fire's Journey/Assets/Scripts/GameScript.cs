@@ -17,15 +17,18 @@ public class GameScript : MonoBehaviour
 
 
     static string[] startStr = new string[] {"altTrig", "F","Press F to light your Flame"};
-    static string[] test1 = new string[] {"choice", "Choice A", "Choice B", "This is a choice questions with multiple boxes", "Now... choose wisely."};
-    static string[] test2 = new string[] {"norm","A normal txt box you can get rid of with X", "some cool txt", "some morecool txt"};
-    static string[] path1_Str1 = new string[] {"choice", "Choice A", "Choice B", "This is a choice questions with multiple boxes", "Now... choose wisely."};
-    static string[] path1_Str2 = new string[] {"norm","A normal txt box you can get rid of with X", "some cool txt", "some morecool txt"};
+    static string[] path1_Str1 = new string[] {"norm", 
+    "Every Fire starts off small.",
+    "Sometimes all we want is for our Fire to grow, to expand.",
+    "But often times we forget to appreciate it.",
+    "Such a small Fire is easy to control, whereas later on..."
+    };
+    static string[] path1_transition = new string[] {"altTrig", "F","Press F to help your Fire grow"};
 
 
 
     
-    string[][] scriptHolder = new string[][] {startStr, test1, test2};
+    string[][] scriptHolder = new string[][] {startStr, path1_Str1, path1_transition};
 
 
     public string[] getNextScript(int index){

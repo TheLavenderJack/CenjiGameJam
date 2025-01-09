@@ -10,7 +10,9 @@ public class DialogueManager : MonoBehaviour
     public GameObject dialoguePanel;
     public GameObject choicesPanel;  // Panel for choices
     public Button[] choiceButtons;  // Buttons for the choices
+    public AudioController audioController;
     private string[] dialogueLines;
+    private int currentSIndex;
     private int currentLine = 0;
     private bool proceed;
     private bool choicedQ;
@@ -18,31 +20,22 @@ public class DialogueManager : MonoBehaviour
     string alternateTrigger;
 
     //Alt trigger button bools
-    private bool altTrigF;
+    public bool altTrigF;
     void Start()
     {
 
     }
 
     void Update() {
-        if (dialoguePanel.activeInHierarchy){ //checking for X input
-            if(Input.GetKeyDown(KeyCode.X)){
-                ShowNextLine();
-            }
-        }
+        
 
-        if (dialoguePanel.activeInHierarchy && altTrigF){ //checking for F input in special case
-            if(Input.GetKeyDown(KeyCode.F)){
-                Debug.Log("Now LIGHT that fuckin fire");
-                altTrigF = false;
-                EndDialogue();
-            }
-        }
+        
     }
 
-    public void StartDialogue(string[] newDialogueLines, string altTrig, bool choiceAtEnd, string[] choices)
+    public void StartDialogue(string[] newDialogueLines, string altTrig, bool choiceAtEnd, string[] choices, int curIndex)
     {
         dialogueLines = newDialogueLines; //the arr of strings that make up the text
+        currentSIndex = curIndex; //which portion of the script the game is on
         currentLine = 0; //which line of text the text box is on
         if(altTrig==""){proceed=true;} // indicates normal txt box treatment
         else{proceed = false; alternateTrigger=altTrig;} // indicates alternate trigger for txt box
@@ -53,12 +46,13 @@ public class DialogueManager : MonoBehaviour
         ShowNextLine();
     }
 
-    void ShowNextLine()
+    public void ShowNextLine()
     {
         if (currentLine < dialogueLines.Length)
         {
-            Debug.Log("In ShowNextLine with currentLine<dialogueLines.Length");
             dialogueText.text = dialogueLines[currentLine];
+            //AudioManager call to play clips based on the current index
+            audioController.PlayVoiceOverAudio(currentSIndex+currentLine);
             currentLine++;
         }
         else{
@@ -78,7 +72,7 @@ public class DialogueManager : MonoBehaviour
 
     }
 
-    void ShowChoices(string[] choices)
+    void ShowChoices(string[] choices) //NEED TO IMPLEMENT
     {
         dialoguePanel.SetActive(true);
         choicesPanel.SetActive(true);
@@ -92,23 +86,24 @@ public class DialogueManager : MonoBehaviour
             choiceButtons[i].onClick.AddListener(() => SelectChoice(index));
         }
     }
-    void SelectChoice(int choiceIndex)
+    void SelectChoice(int choiceIndex) //NEED TO IMPLMEMNT
     {
+
         EndDialogue();  // End dialogue after making a choice
     }
 
     void altTrigger()
     {
-        Debug.Log("made it into AltTrigger method");
         if(alternateTrigger == "F"){
             altTrigF = true;
         }
     }
 
-    void EndDialogue()
+    public void EndDialogue()
     {
         dialoguePanel.SetActive(false);
         choicesPanel.SetActive(false);
+        
     }
 
 
