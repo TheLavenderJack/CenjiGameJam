@@ -21,6 +21,8 @@ public class playerControl : MonoBehaviour
     void Start(){
         string[] t = gameScript.getNextScript(currentScriptIndex);
         processScript(t);
+
+        credits.enabled = false;
         
         audioController.OnAudioFinished += OnAudioFinishedHandler;
         dialogueManager.OnDialogueEnd += OnDialogueEndHandler;
