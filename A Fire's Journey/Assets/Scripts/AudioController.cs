@@ -10,6 +10,9 @@ public class AudioController : MonoBehaviour
     public AudioSource voiceOver;
     public AudioSource music;
     public AudioSource[] sfx;
+    public AudioSource fireSound;
+    public AudioSource fireWhoosh;
+    private int sampleStart;
     public float[,] voiceOverTimeStamps = {//based on index, 1st index is row, two floats are times
         {0,0},
         {1.7f, 4}, //1
@@ -22,14 +25,28 @@ public class AudioController : MonoBehaviour
         {32.2f, 34.2f},
         {34.7f, 37.8f},
         //Section C (Fan Flames)
-        {2.5f, 7},
-        {2.5f, 7},
-        {2.5f, 7},
-        {2.5f, 7},
-        } 
-    
-    
-    ;
+        {43f, 47.5f}, //9
+        {48.1f, 50f},
+        {50.3f, 52.5f},
+        {54f, 57f},
+        //Section D1 (Burning)
+        {60.2f,66.3f}, //13
+        {67f,69.3f},
+        {69.8f,72.2f},
+        {73.3f,78.5f},
+        {79f,85.2f},
+        {85.8f,87.4f},
+        //Section D2 (Light)
+        {89.5f,91.8f}, //19
+        {92.1f,95.1f},
+        {95.72f,100.5f},
+        {101.3f,106.3f},
+        //Section E (Final)
+        {108.6f,111.4f}, //23
+        {111.7f,114f},
+        {114.5f,117.5f},
+        {118.5f,120f},
+        };
 
     public event Action OnAudioFinished;
 

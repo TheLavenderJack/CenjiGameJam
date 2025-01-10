@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -18,9 +19,14 @@ public class DialogueManager : MonoBehaviour
     private bool choicedQ;
     private string[] playerChoices;
     string alternateTrigger;
+    public string choice;
+    public bool choiceStop;
+    public bool putOutFlame=false;
+    public event Action OnDialogueEnd;
 
     //Alt trigger button bools
     public bool altTrigF;
+    
     void Start()
     {
 
@@ -52,7 +58,33 @@ public class DialogueManager : MonoBehaviour
         {
             dialogueText.text = dialogueLines[currentLine];
             //AudioManager call to play clips based on the current index
-            audioController.PlayVoiceOverAudio(currentSIndex+currentLine);
+            if(currentSIndex==1){
+                audioController.PlayVoiceOverAudio(currentSIndex+currentLine);
+            }
+            else if(currentSIndex==2){} //no audio
+            else if(currentSIndex==3){
+                audioController.PlayVoiceOverAudio((2+currentSIndex)+currentLine); //start audio at clip 5
+            }
+            else if(currentSIndex==4){} //no audio
+            else if(currentSIndex==5){
+                audioController.PlayVoiceOverAudio((4+currentSIndex) +currentLine); //start audio at clip 9
+                if(9+currentLine == 12){
+                    choiceStop = true;
+                }
+            }
+            else if(currentSIndex==6){ //Burned
+                audioController.PlayVoiceOverAudio((7+currentSIndex) +currentLine); //start at audio clip 13 
+            }
+            else if(currentSIndex==7){ //Light
+                audioController.PlayVoiceOverAudio((12+currentSIndex) +currentLine); //start at audio clip 19
+            }
+            else if (currentSIndex==8){
+                audioController.PlayVoiceOverAudio((15+currentSIndex) +currentLine); //start at audio clip 23
+                if(23+currentLine == 26){
+                    putOutFlame=true;
+                }
+            }
+            
             currentLine++;
         }
         else{
@@ -72,7 +104,7 @@ public class DialogueManager : MonoBehaviour
 
     }
 
-    void ShowChoices(string[] choices) //NEED TO IMPLEMENT
+    void ShowChoices(string[] choices)
     {
         dialoguePanel.SetActive(true);
         choicesPanel.SetActive(true);
@@ -86,9 +118,17 @@ public class DialogueManager : MonoBehaviour
             choiceButtons[i].onClick.AddListener(() => SelectChoice(index));
         }
     }
-    void SelectChoice(int choiceIndex) //NEED TO IMPLMEMNT
+    void SelectChoice(int choiceIndex)
     {
-
+        if(choiceIndex == 0){
+            Debug.Log("Burned Choice");
+            choice = "Burned";
+        }
+        else if(choiceIndex == 1){
+            Debug.Log("Light Choice");
+            choice = "Light";
+        }
+        choiceStop = false;
         EndDialogue();  // End dialogue after making a choice
     }
 
@@ -97,13 +137,18 @@ public class DialogueManager : MonoBehaviour
         if(alternateTrigger == "F"){
             altTrigF = true;
         }
+        else if (alternateTrigger == "E"){
+            altTrigF = false;
+        }
+        //IMPLEMNT E TRIGGER
     }
 
     public void EndDialogue()
     {
         dialoguePanel.SetActive(false);
         choicesPanel.SetActive(false);
-        
+        OnDialogueEnd?.Invoke();
+        Debug.Log("Invoked OnDialogueEnd");
     }
 
 

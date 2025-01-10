@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using System;
+using TMPro;
 
 public class playerControl : MonoBehaviour
 {
@@ -13,43 +14,57 @@ public class playerControl : MonoBehaviour
     public int currentScriptIndex = 0;
     private bool cont=false;
     public bool voiceOverEnd = false;
+    private int fTrigCount = 0;
+    public TextMeshProUGUI credits;
 
 
     void Start(){
         string[] t = gameScript.getNextScript(currentScriptIndex);
         processScript(t);
-        Debug.Log(""+cont);
+        
         audioController.OnAudioFinished += OnAudioFinishedHandler;
+        dialogueManager.OnDialogueEnd += OnDialogueEndHandler;
     }
 
     void Update() {
-        if(Input.GetKeyDown(KeyCode.E)&&animator.GetBool("burning")){ //always checking for fire animation
+        if(Input.GetKeyDown(KeyCode.E)&&animator.GetBool("burning")&&dialogueManager.putOutFlame){ //always checking for fire animation
             animator.SetTrigger("extinguish");
             animator.SetBool("burning", false);
+            audioController.fireSound.Stop();
+            dialogueManager.EndDialogue();
+            StartCoroutine(ShowCredits(4f));
+
         }
 
         if (dialogueManager.dialoguePanel.activeInHierarchy){ //always checking for X input
-            if(Input.GetKeyDown(KeyCode.X)&&cont){
+            if(Input.GetKeyDown(KeyCode.X)&&cont&&!dialogueManager.choiceStop){
                 dialogueManager.ShowNextLine();
-
                 cont=false;
             }
         }
 
         if (dialogueManager.dialoguePanel.activeInHierarchy && dialogueManager.altTrigF){ //checking for F input in special case
             if(Input.GetKeyDown(KeyCode.F)){
-                animator.SetTrigger("light");
-                animator.SetBool("burning", true);
+                if(fTrigCount<1){
+                    animator.SetTrigger("light");
+                    animator.SetBool("burning", true);
+                    audioController.fireSound.Play();
+                    audioController.music.Play();
+                }
+                else if(fTrigCount==1){
+                    animator.SetTrigger("goMedium");
+                    audioController.fireWhoosh.Play();
+                    
+                }
+                else if(fTrigCount==2){
+                    animator.SetTrigger("goLarge");
+                    audioController.fireWhoosh.Play();
+                }
+                fTrigCount++;
                 dialogueManager.altTrigF = false;
                 dialogueManager.EndDialogue();
-                continueStory();
             }
         }
-
-    }
-
-
-    public void changeAnim(){
 
     }
 
@@ -75,10 +90,41 @@ public class playerControl : MonoBehaviour
 
 
     public void continueStory(){ // This is where the story is specifically scriptedout (if index=0, go to 1, etc)
-        if(currentScriptIndex == 0||currentScriptIndex == 5){
-            currentScriptIndex++;
+        if(currentScriptIndex == 0){
+            currentScriptIndex++; //Set to small flame
+            Debug.Log("Before CoRoutine, the currentScriptIndex is "+currentScriptIndex);
+            StartCoroutine(WaitAndShowScript(3f)); //pause after the first F press 
+        }
+        else if(currentScriptIndex == 1){
+            currentScriptIndex++; //sets to Grow Flame (F)
+            processScript(gameScript.getNextScript(currentScriptIndex));
+        }
+        else if(currentScriptIndex == 2){
+            currentScriptIndex++; //Set to different flames
             StartCoroutine(WaitAndShowScript(3f));
         }
+        else if(currentScriptIndex == 3){
+            currentScriptIndex++; //Set to fan Flames (F)
+            processScript(gameScript.getNextScript(currentScriptIndex));
+        }
+        else if(currentScriptIndex == 4){
+            currentScriptIndex++; //Set to different flames CHOICE
+            StartCoroutine(WaitAndShowScript(3f));
+        }
+        else if(currentScriptIndex == 5){
+            if(dialogueManager.choice == "Burned"){
+                currentScriptIndex=6;
+            }
+            else if (dialogueManager.choice=="Light"){
+                currentScriptIndex=7;
+            }
+            processScript(gameScript.getNextScript(currentScriptIndex));
+        }
+        else if(currentScriptIndex == 6 || currentScriptIndex == 7){
+            currentScriptIndex=8;
+            processScript(gameScript.getNextScript(currentScriptIndex));
+        }
+        
         
 
     }
@@ -89,8 +135,16 @@ public class playerControl : MonoBehaviour
         processScript(gameScript.getNextScript(currentScriptIndex));
     }
 
+    IEnumerator ShowCredits(float delay){
+        yield return new WaitForSeconds(delay);
+        credits.enabled = true;
+    }
 
     private void OnAudioFinishedHandler(){
         cont=true;
+    }
+
+    private void OnDialogueEndHandler(){
+        continueStory();
     }
 }
